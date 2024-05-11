@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+
+  server:
+    image: server:1.0.0
+    container_name: ${SERVER_HOST}
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file: .env
+    restart: always
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ./server:/server
+      - server-v-node-modules:/server/node_modules
+
+  reverse-proxy:
+    image: reverse-proxy:1.0.0
+    container_name: ${REVERSE_PROXY_HOST}
+    build: 
+      context: ./reverse-proxy
+      dockerfile: Dockerfile
+    env_file: .env
+    restart: always
+    ports:
+      - ${REVERSE_PROXY_PORT}:${REVERSE_PROXY_PORT}
+    volumes:
+      - ./reverse-proxy/default.conf.template:/etc/nginx/templates/default.conf.template
+    depends_on:
+      - server
+
+volumes:
+  server-v-node-modules:
+    name: "server-v-node-modules"
